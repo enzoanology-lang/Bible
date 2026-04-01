@@ -50,6 +50,16 @@ function initApp() {
     setupEventListeners();
     adjustTextareaHeight();
     loadChatHistory();
+    updateSessionInfo();
+}
+
+// Update session info display
+function updateSessionInfo() {
+    const sessionInfoElement = document.getElementById('session-info');
+    if (sessionInfoElement && state.sessionId) {
+        const shortId = state.sessionId.substring(0, 12);
+        sessionInfoElement.textContent = `Session: ${shortId}...`;
+    }
 }
 
 // Authentication Check
@@ -108,27 +118,28 @@ function setupEventListeners() {
     elements.micBtn.addEventListener('click', handleVoiceInput);
 
     // Navigation links
+    // Profile link - Navigate to profile.html if authenticated
     elements.profileLink.addEventListener('click', (e) => {
-        e.preventDefault();
         if (!state.isAuthenticated) {
+            e.preventDefault();
             showLoginModal();
-        } else {
-            alert('Profile feature coming soon!');
         }
+        // If authenticated, let the link navigate to profile.html
     });
 
+    // Bible link - coming soon
     elements.bibleLink.addEventListener('click', (e) => {
         e.preventDefault();
         alert('Bible reading feature coming soon!');
     });
 
+    // About link
     elements.aboutLink.addEventListener('click', (e) => {
         e.preventDefault();
         alert('Bibleai is your AI-powered companion for exploring scripture and biblical wisdom.');
     });
 
-    // New Chat button (optional - add this to your UI if you want)
-    // You can add a "New Chat" button in your HTML to reset session
+    // New Chat button
     const newChatBtn = document.getElementById('new-chat-btn');
     if (newChatBtn) {
         newChatBtn.addEventListener('click', handleNewChat);
@@ -141,6 +152,9 @@ function handleNewChat() {
         // Generate new session ID
         state.sessionId = generateSessionId();
         localStorage.setItem('bibleai_session_id', state.sessionId);
+        
+        // Update session info display
+        updateSessionInfo();
         
         // Clear chat history
         state.chatHistory = [];
@@ -550,33 +564,11 @@ setInterval(() => {
     }
 }, 30000);
 
-// Display session info (optional - add to your UI)
-function displaySessionInfo() {
-    const sessionInfo = document.createElement('div');
-    sessionInfo.className = 'session-info';
-    sessionInfo.style.cssText = `
-        font-size: 12px;
-        color: #666;
-        text-align: center;
-        padding: 5px;
-        border-top: 1px solid #eee;
-        margin-top: 10px;
-    `;
-    sessionInfo.innerHTML = `Session ID: ${state.sessionId.substring(0, 8)}...`;
-    
-    const chatHeader = document.querySelector('.chat-header');
-    if (chatHeader && !document.querySelector('.session-info')) {
-        chatHeader.appendChild(sessionInfo);
-    }
-}
-
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         initApp();
-        displaySessionInfo();
     });
 } else {
     initApp();
-    displaySessionInfo();
 }
